@@ -1,5 +1,5 @@
-use rusqlite::{Connection, Result, params};
-use crate::db_backup::get_initial_insert_statements;
+use super::db_backup::get_initial_insert_statements;
+use rusqlite::{params, Connection, Result};
 
 #[derive(Debug)]
 pub struct TaxRates {
@@ -23,11 +23,8 @@ pub fn setup_db(conn: &Connection) -> Result<()> {
         [],
     )?;
 
-    let tax_rates_row_count: i64 = conn.query_row(
-        "SELECT COUNT(*) FROM tax_rates",
-        [],
-        |row| row.get(0),
-    )?;
+    let tax_rates_row_count: i64 =
+        conn.query_row("SELECT COUNT(*) FROM tax_rates", [], |row| row.get(0))?;
 
     if tax_rates_row_count == 0 {
         // Table is empty, insert initial data.
@@ -43,10 +40,12 @@ pub fn setup_db(conn: &Connection) -> Result<()> {
 
 // Function to query the tax rates for a specific year.
 pub fn get_tax_rates(conn: &Connection, year: i32) -> Option<TaxRates> {
-    let mut stmt = conn.prepare(
-        "SELECT year, income_tax, social_security, health_insurance, insurance_contribution
-         FROM tax_rates WHERE year = ?1"
-    ).expect("Connection should work.");
+    let mut stmt = conn
+        .prepare(
+            "SELECT year, income_tax, social_security, health_insurance, insurance_contribution
+         FROM tax_rates WHERE year = ?1",
+        )
+        .expect("Connection should work.");
 
     let tax_rates = match stmt.query_row(params![year], |row| {
         Ok(TaxRates {
@@ -58,9 +57,8 @@ pub fn get_tax_rates(conn: &Connection, year: i32) -> Option<TaxRates> {
         })
     }) {
         Ok(tax_rate) => Some(tax_rate),
-        Err(_) => None
+        Err(_) => None,
     };
-
 
     tax_rates
 }

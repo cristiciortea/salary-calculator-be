@@ -1,6 +1,6 @@
 use anyhow::Result;
 use axum::http::StatusCode;
-use serde_json::{json};
+use serde_json::json;
 
 static LOCALHOST: &str = "http://localhost:8000";
 
@@ -17,7 +17,6 @@ async fn check_health() -> Result<()> {
     Ok(())
 }
 
-
 #[tokio::test]
 async fn calculate_with_wrong_currency_should_return_error_400() {
     let client = reqwest::Client::new();
@@ -28,7 +27,8 @@ async fn calculate_with_wrong_currency_should_return_error_400() {
         "customTax": "500",
     });
 
-    let response = client.post(format!("{LOCALHOST}/calculate"))
+    let response = client
+        .post(format!("{LOCALHOST}/calculate"))
         .json(&data)
         .send()
         .await
@@ -49,7 +49,8 @@ async fn calculate_with_wrong_income_type_should_return_error_400() {
         "customTax": "500",
     });
 
-    let response = client.post(format!("{LOCALHOST}/calculate"))
+    let response = client
+        .post(format!("{LOCALHOST}/calculate"))
         .json(&data)
         .send()
         .await
@@ -70,7 +71,8 @@ async fn calculate_with_empty_currency_should_return_error_400() {
         "customTax": "500",
     });
 
-    let response = client.post(format!("{LOCALHOST}/calculate"))
+    let response = client
+        .post(format!("{LOCALHOST}/calculate"))
         .json(&data)
         .send()
         .await
@@ -90,7 +92,8 @@ async fn calculate_missing_salary() {
         "customTax": "500",
     });
 
-    let response = client.post(format!("{LOCALHOST}/calculate"))
+    let response = client
+        .post(format!("{LOCALHOST}/calculate"))
         .json(&data)
         .send()
         .await
@@ -110,7 +113,8 @@ async fn calculate_net_salary_happy_path() -> Result<()> {
         "currency": "ron",
         "customTax": null,
     });
-    let response = client.post(format!("{LOCALHOST}/calculate"))
+    let response = client
+        .post(format!("{LOCALHOST}/calculate"))
         .json(&data)
         .send()
         .await?;
@@ -131,7 +135,8 @@ async fn calculate_brute_salary_happy_path() -> Result<()> {
         "currency": "ron",
         "customTax": null,
     });
-    let response = client.post(format!("{LOCALHOST}/calculate"))
+    let response = client
+        .post(format!("{LOCALHOST}/calculate"))
         .json(&data)
         .send()
         .await?;
