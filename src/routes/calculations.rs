@@ -11,6 +11,7 @@ pub fn calculate_router() -> Router {
     Router::new().route("/calculate", post(calculate))
 }
 
+
 pub async fn calculate(Json(data): Json<CalculateSchema>) -> Response {
     println!("->> {:<12} - Calculate handler - {data:?}", "HANDLER");
     let calculation_input = match validate_calculate_input(&data) {

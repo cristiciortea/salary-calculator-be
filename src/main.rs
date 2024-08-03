@@ -18,6 +18,13 @@ mod utils;
 
 static SERVER_ADDRESS: &str = "0.0.0.0:8000";
 
+
+// TODO: Create the new endpoint taxes info. This will get the percentages
+//  of current taxes for employees/other cases.
+// TODO: Create a new endpoint to calculate the total taxation on
+//  employees or companies, this is used to create the chart.
+
+
 #[tokio::main]
 async fn main() -> Result<(), ()> {
     println!("[INFO]: Current year is {}...", get_current_year());
