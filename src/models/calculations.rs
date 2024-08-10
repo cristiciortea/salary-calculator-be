@@ -1,5 +1,5 @@
-use serde::{Deserialize, Serialize};
 use crate::utils::round_to;
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug)]
 pub enum Currency {
@@ -57,14 +57,13 @@ pub struct CalculationInput {
 }
 
 #[derive(Debug, Serialize)]
-pub struct TaxInfo {
-    cas: f64,
-    cass: f64,
-    dp: Option<f64>,
-    income: f64,
-    cam: f64,
+pub struct TaxInfo<'a> {
+    pub cas: &'a f64,
+    pub cass: &'a f64,
+    pub income: &'a f64,
+    pub cam: &'a f64,
+    pub dp: Option<&'a f64>,
 }
-
 
 #[derive(Debug, Serialize)]
 pub struct CalculationResults {

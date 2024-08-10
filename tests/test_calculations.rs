@@ -1,8 +1,8 @@
 use anyhow::Result;
 use axum::http::StatusCode;
+use common::LOCALHOST;
 use serde_json::json;
-
-static LOCALHOST: &str = "http://localhost:8000";
+mod common;
 
 #[tokio::test]
 async fn check_health() -> Result<()> {

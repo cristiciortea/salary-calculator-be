@@ -4,26 +4,24 @@ use rusqlite::Connection;
 use serde::{Deserialize, Serialize};
 use tokio::net::TcpListener;
 
+use crate::routes::taxes::taxes_router;
 use database::db::setup_db;
 use database::db_backup::get_current_year;
 use routes::calculations::calculate_router;
 use routes::health::health_router;
 
 mod database;
-mod routes;
 mod models;
+mod routes;
 mod services;
-mod validators;
 mod utils;
+mod validators;
 
 static SERVER_ADDRESS: &str = "0.0.0.0:8000";
 
-
-// TODO: Create the new endpoint taxes info. This will get the percentages
-//  of current taxes for employees/other cases.
 // TODO: Create a new endpoint to calculate the total taxation on
 //  employees or companies, this is used to create the chart.
-
+// TODO: Try refactor code to be more idiomatic.
 
 #[tokio::main]
 async fn main() -> Result<(), ()> {
@@ -36,7 +34,8 @@ async fn main() -> Result<(), ()> {
     println!("[INFO]: Create routers...");
     let main_router = Router::new()
         .merge(health_router())
-        .merge(calculate_router());
+        .merge(calculate_router())
+        .merge(taxes_router());
 
     let listener = TcpListener::bind(SERVER_ADDRESS).await.unwrap();
     println!("----> LISTENING on {:?}\n", listener.local_addr().unwrap());

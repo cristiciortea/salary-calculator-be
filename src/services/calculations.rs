@@ -1,20 +1,24 @@
-use rusqlite::Connection;
 use crate::database::db::get_tax_rates;
 use crate::database::db_backup::get_current_year;
 use crate::models::calculations::{CalculationInput, CalculationResults, IncomeType};
+use rusqlite::Connection;
 
 pub async fn perform_calculation(input: CalculationInput) -> CalculationResults {
     // The main function where the calculation works.
-    println!("->> {:<12} - Calculate calculation_input - {input:?}", "DEBUG in perform_calculation");
-    let conn = Connection::open("./tax_rates.db").expect("Sqlite conn should be able to open. Cause");
-    let tax_rates = match get_tax_rates(&conn, get_current_year()) {
-        None => { return CalculationResults::default(); }
-        Some(tax_rates) => tax_rates
-    };
+    println!(
+        "->> {:<12} - Calculate calculation_input - {input:?}",
+        "DEBUG in perform_calculation"
+    );
+    let conn =
+        Connection::open("./tax_rates.db").expect("Sqlite conn should be able to open. Cause");
+    let tax_rates = get_tax_rates(&conn, get_current_year())
+        .expect("Tax rates for current year should be found in the database. Cause");
 
     if input.income_type == IncomeType::NET {
         let net_income = input.income as f64;
-        let brute_income = net_income / ((1.0 - tax_rates.social_security - tax_rates.health_insurance) * (1.0 - tax_rates.income_tax));
+        let brute_income = net_income
+            / ((1.0 - tax_rates.social_security - tax_rates.health_insurance)
+                * (1.0 - tax_rates.income_tax));
 
         let calculated_cas = brute_income * tax_rates.social_security;
         let calculated_cass = brute_income * tax_rates.health_insurance;
@@ -28,7 +32,8 @@ pub async fn perform_calculation(input: CalculationInput) -> CalculationResults 
             cass: calculated_cass,
             cam: calculated_cam_tax,
             income_tax: calculated_income_tax,
-        }.apply_rounding(2)
+        }
+        .apply_rounding(2)
     } else {
         let brute_income = input.income as f64;
         let calculated_cas = brute_income * tax_rates.social_security;
@@ -44,6 +49,7 @@ pub async fn perform_calculation(input: CalculationInput) -> CalculationResults 
             cass: calculated_cass,
             cam: calculated_cam_tax,
             income_tax: calculated_income_tax,
-        }.apply_rounding(2)
+        }
+        .apply_rounding(2)
     }
 }
