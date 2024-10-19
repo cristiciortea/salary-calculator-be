@@ -1,5 +1,5 @@
 # Description
-A cool learning rust backend salary calculator which could return some money by using adds.
+A cool learning rust backend web-application salary calculator which could return some money by using adds.
 
 # Running locally
 ## Install cargo-watch

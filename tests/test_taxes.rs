@@ -4,8 +4,6 @@ use anyhow::Result;
 use axum::http::StatusCode;
 use common::LOCALHOST;
 use reqwest;
-use serde_json::json;
-use serde_json::Value::Null;
 use std::ops::Deref;
 
 #[tokio::test]
