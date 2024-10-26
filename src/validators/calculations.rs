@@ -7,12 +7,7 @@ pub fn validate_calculate_input(data: &CalculateSchema) -> Result<CalculationInp
             return Err(String::from("Invalid or missing income."));
         }
     };
-
-    let income_type = match data
-        .income_type
-        .as_deref()
-        .and_then(|i| IncomeType::from_str(i))
-    {
+    let income_type = match data.income_type.as_deref().and_then(IncomeType::from_str) {
         Some(income_type) => income_type,
         None => {
             return Err(format!(
@@ -21,8 +16,7 @@ pub fn validate_calculate_input(data: &CalculateSchema) -> Result<CalculationInp
             ));
         }
     };
-
-    let currency = match data.currency.as_deref().and_then(|c| Currency::from_str(c)) {
+    let currency = match data.currency.as_deref().and_then(Currency::from_str) {
         Some(currency) => currency,
         None => {
             return Err(format!(
@@ -31,7 +25,6 @@ pub fn validate_calculate_input(data: &CalculateSchema) -> Result<CalculationInp
             ));
         }
     };
-
     let custom_tax: Option<u32> = data
         .custom_tax
         .as_deref()
@@ -39,11 +32,13 @@ pub fn validate_calculate_input(data: &CalculateSchema) -> Result<CalculationInp
         .trim()
         .parse()
         .ok();
+    let year: Option<u32> = data.year.as_deref().unwrap_or("").trim().parse().ok();
 
     Ok(CalculationInput {
         income,
         income_type,
         currency,
         custom_tax,
+        year,
     })
 }

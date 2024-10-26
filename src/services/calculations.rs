@@ -11,7 +11,7 @@ pub async fn perform_calculation(input: CalculationInput) -> CalculationResults 
     );
     let conn =
         Connection::open("./tax_rates.db").expect("Sqlite conn should be able to open. Cause");
-    let tax_rates = get_tax_rates(&conn, get_current_year())
+    let tax_rates = get_tax_rates(&conn, input.year.unwrap_or_else(get_current_year))
         .expect("Tax rates for current year should be found in the database. Cause");
 
     if input.income_type == IncomeType::NET {
@@ -25,13 +25,17 @@ pub async fn perform_calculation(input: CalculationInput) -> CalculationResults 
         let calculated_cam_tax = brute_income * tax_rates.insurance_contribution;
         let taxable_income = brute_income - calculated_cas - calculated_cass;
         let calculated_income_tax = taxable_income * tax_rates.income_tax;
+        let total_salary = brute_income + calculated_cam_tax;
         CalculationResults {
             net_income,
             brute_income,
             cas: calculated_cas,
             cass: calculated_cass,
-            cam: calculated_cam_tax,
             income_tax: calculated_income_tax,
+            cam: calculated_cam_tax,
+            total_salary: brute_income + calculated_cam_tax,
+            employee_tax_percentage: net_income * 100f64 / total_salary,
+            state_tax_percentage: ((total_salary - net_income) * 100f64) / total_salary,
         }
         .apply_rounding(2)
     } else {
@@ -42,13 +46,17 @@ pub async fn perform_calculation(input: CalculationInput) -> CalculationResults 
         let calculated_cam_tax = brute_income * tax_rates.insurance_contribution;
         let calculated_income_tax = taxable_income * tax_rates.income_tax;
         let net_income = taxable_income - calculated_income_tax;
+        let total_salary = brute_income + calculated_cam_tax;
         CalculationResults {
             brute_income,
             net_income,
+            total_salary,
             cas: calculated_cas,
             cass: calculated_cass,
-            cam: calculated_cam_tax,
             income_tax: calculated_income_tax,
+            cam: calculated_cam_tax,
+            employee_tax_percentage: (net_income * 100f64 / total_salary),
+            state_tax_percentage: ((total_salary - net_income) * 100f64) / total_salary,
         }
         .apply_rounding(2)
     }

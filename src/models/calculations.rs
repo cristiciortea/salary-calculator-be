@@ -53,11 +53,13 @@ pub struct CalculationInput {
     pub income: u32,
     pub income_type: IncomeType,
     pub currency: Currency,
+    pub year: Option<u32>,
     pub custom_tax: Option<u32>,
 }
 
 #[derive(Debug, Serialize)]
 pub struct TaxInfo<'a> {
+    pub year: &'a i32,
     pub cas: &'a f64,
     pub cass: &'a f64,
     pub income: &'a f64,
@@ -71,8 +73,11 @@ pub struct CalculationResults {
     pub net_income: f64,
     pub cas: f64,
     pub cass: f64,
-    pub cam: f64,
     pub income_tax: f64,
+    pub cam: f64,
+    pub total_salary: f64,
+    pub employee_tax_percentage: f64,
+    pub state_tax_percentage: f64,
 }
 
 impl Default for CalculationResults {
@@ -82,8 +87,11 @@ impl Default for CalculationResults {
             net_income: 0.0,
             cass: 0.0,
             cas: 0.0,
-            cam: 0.0,
             income_tax: 0.0,
+            cam: 0.0,
+            total_salary: 0.0,
+            employee_tax_percentage: 0.0,
+            state_tax_percentage: 0.0,
         }
     }
 }
@@ -95,8 +103,11 @@ impl CalculationResults {
             net_income: round_to(self.net_income, decimals),
             cas: round_to(self.cas, decimals),
             cass: round_to(self.cass, decimals),
-            cam: round_to(self.cam, decimals),
             income_tax: round_to(self.income_tax, decimals),
+            cam: round_to(self.cam, decimals),
+            total_salary: round_to(self.total_salary, decimals),
+            employee_tax_percentage: round_to(self.employee_tax_percentage, decimals),
+            state_tax_percentage: round_to(self.state_tax_percentage, decimals),
         }
     }
 }

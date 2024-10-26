@@ -59,7 +59,7 @@ pub fn setup_db(conn: &Connection) -> Result<()> {
 }
 
 // Function to query the tax rates for a specific year.
-pub fn get_tax_rates(conn: &Connection, year: i32) -> Result<TaxRates, TaxRateError> {
+pub fn get_tax_rates(conn: &Connection, year: u32) -> Result<TaxRates, TaxRateError> {
     let mut stmt = conn
         .prepare(
             "SELECT year, income_tax, social_security, health_insurance, insurance_contribution

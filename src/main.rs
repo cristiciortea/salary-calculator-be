@@ -1,7 +1,5 @@
-use axum::response::IntoResponse;
 use axum::Router;
 use rusqlite::Connection;
-use serde::{Deserialize, Serialize};
 use tokio::net::TcpListener;
 
 use crate::routes::taxes::taxes_router;

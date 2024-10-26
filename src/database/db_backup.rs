@@ -1,7 +1,7 @@
 use chrono::{Datelike, Local};
-pub fn get_current_year() -> i32 {
+pub fn get_current_year() -> u32 {
     let dt = Local::now();
-    dt.year()
+    dt.year() as u32
 }
 
 pub fn get_initial_insert_statements() -> Vec<String> {

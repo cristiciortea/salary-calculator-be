@@ -1,6 +1,7 @@
 use anyhow::Result;
 use axum::http::StatusCode;
 use common::LOCALHOST;
+use serde::Deserialize;
 use serde_json::json;
 mod common;
 
@@ -18,7 +19,7 @@ async fn check_health() -> Result<()> {
 }
 
 #[tokio::test]
-async fn calculate_with_wrong_currency_should_return_error_400() {
+async fn calculate_with_wrong_currency_should_respond_error_400() {
     let client = reqwest::Client::new();
     let data = json!({
         "income": "1000",
@@ -40,7 +41,7 @@ async fn calculate_with_wrong_currency_should_return_error_400() {
 }
 
 #[tokio::test]
-async fn calculate_with_wrong_income_type_should_return_error_400() {
+async fn calculate_with_wrong_income_type_should_respond_error_400() {
     let client = reqwest::Client::new();
     let data = json!({
         "income": "1000",
@@ -62,7 +63,7 @@ async fn calculate_with_wrong_income_type_should_return_error_400() {
 }
 
 #[tokio::test]
-async fn calculate_with_empty_currency_should_return_error_400() {
+async fn calculate_with_empty_currency_should_respond_error_400() {
     let client = reqwest::Client::new();
     let data = json!({
         "income": "1000",
@@ -84,7 +85,7 @@ async fn calculate_with_empty_currency_should_return_error_400() {
 }
 
 #[tokio::test]
-async fn calculate_missing_salary() {
+async fn calculate_missing_salary_should_respond_400() {
     let client = reqwest::Client::new();
     let data = json!({
         // Missing "salary"
@@ -104,6 +105,19 @@ async fn calculate_missing_salary() {
     assert!(text.contains("Invalid or missing income."));
 }
 
+#[derive(Debug, Deserialize)]
+struct CalculationResponse {
+    brute_income: f64,
+    net_income: f64,
+    cas: f64,
+    cass: f64,
+    income_tax: f64,
+    cam: f64,
+    total_salary: f64,
+    employee_tax_percentage: f64,
+    state_tax_percentage: f64,
+}
+
 #[tokio::test]
 async fn calculate_net_salary_happy_path() -> Result<()> {
     let client = reqwest::Client::new();
@@ -119,9 +133,18 @@ async fn calculate_net_salary_happy_path() -> Result<()> {
         .send()
         .await?;
     let status = response.status();
-    let text = response.text().await.unwrap();
-    println!("DEBUG: {text}");
+    let response: CalculationResponse = response.json().await?;
+
     assert_eq!(status, StatusCode::OK.as_u16());
+    assert_eq!(response.brute_income, 17094.02);
+    assert_eq!(response.net_income, 10000.0);
+    assert_eq!(response.cas, 4273.5);
+    assert_eq!(response.cass, 1709.4);
+    assert_eq!(response.income_tax, 1111.11);
+    assert_eq!(response.cam, 384.62);
+    assert_eq!(response.total_salary, 17478.63);
+    assert_eq!(response.employee_tax_percentage, 57.21);
+    assert_eq!(response.state_tax_percentage, 42.79);
 
     Ok(())
 }
@@ -141,9 +164,50 @@ async fn calculate_brute_salary_happy_path() -> Result<()> {
         .send()
         .await?;
     let status = response.status();
-    let text = response.text().await.unwrap();
-    println!("DEBUG: {text}");
+    let response: CalculationResponse = response.json().await?;
+
     assert_eq!(status, StatusCode::OK.as_u16());
+    assert_eq!(response.brute_income, 10000.0);
+    assert_eq!(response.net_income, 5850.0);
+    assert_eq!(response.cas, 2500.0);
+    assert_eq!(response.cass, 1000.0);
+    assert_eq!(response.income_tax, 650.0);
+    assert_eq!(response.cam, 225.0);
+    assert_eq!(response.total_salary, 10225.0);
+    assert_eq!(response.employee_tax_percentage, 57.21);
+    assert_eq!(response.state_tax_percentage, 42.79);
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn calculate_brute_salary_works_for_year_2023() -> Result<()> {
+    let client = reqwest::Client::new();
+    let data = json!({
+        "income": "10000",
+        "incomeType": "brute",
+        "currency": "ron",
+        "customTax": null,
+        "year": "2023",
+    });
+    let response = client
+        .post(format!("{LOCALHOST}/calculate"))
+        .json(&data)
+        .send()
+        .await?;
+    let status = response.status();
+    let response: CalculationResponse = response.json().await?;
+
+    assert_eq!(status, StatusCode::OK.as_u16());
+    assert_eq!(response.brute_income, 10000.0);
+    assert_eq!(response.net_income, 5850.0);
+    assert_eq!(response.cas, 2500.0);
+    assert_eq!(response.cass, 1000.0);
+    assert_eq!(response.income_tax, 650.0);
+    assert_eq!(response.cam, 225.0);
+    assert_eq!(response.total_salary, 10225.0);
+    assert_eq!(response.employee_tax_percentage, 57.21);
+    assert_eq!(response.state_tax_percentage, 42.79);
 
     Ok(())
 }
